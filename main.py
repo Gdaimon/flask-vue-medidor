@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 from datetime import datetime, timezone
 
@@ -7,6 +8,9 @@ from flask_restful import Api, Resource, abort
 
 app = Flask(__name__)
 api = Api(app)
+
+# Obtenemos la variable de entorno
+API_HOST = os.environ.get('API_HOST', 'localhost')
 
 # Simulacion base de datos
 
@@ -45,6 +49,9 @@ class measurement(Resource):
 
     def get(self, id):
 
+        # import pdb #Debugger
+        # pdb.set_trace() # debugger
+
         for measurement in MEASUREMENTS:
             print('id: ', id)
             print('var: ', measurement.get('id'))
@@ -80,4 +87,6 @@ api.add_resource(measurement, '/v1/measurements/<string:id>')
 api.add_resource(MeasurementList, '/v1/measurements/')
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    # app.run(debug=True, port=5000)
+    # ya no se necesita porque se toman los del archivo .env
+    app.run(host=API_HOST)
