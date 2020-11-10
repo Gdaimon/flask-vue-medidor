@@ -116,10 +116,35 @@ MEASUREMENTS = [
 #         )
 
 class MeasurementDetail(Resource):
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('sys', type=int, required=False, location='json')
+        self.reqparse.add_argument('dia', type=int, required=False, location='json')
+        self.reqparse.add_argument('pul', type=int, required=False, location='json')
+        super(MeasurementDetail, self).__init__()
+
     def get(self, id):
         try:
             measurement = Measurement.objects(id=id).first()
             if measurement is not None:
+                return measurement.to_dic(), 200
+            abort(404, message=f'Measurement ID={id} was not found')
+        except NotFound as e:
+            raise e
+        except Exception as e:
+            abort(500, message=str(e))
+
+    def patch(self, id):
+        try:
+            import pdb
+            pdb.set_trace()
+            measurement = Measurement.objects(id=id).first()
+            if measurement is not None:
+                data = self.reqparse.parse_args()
+                data = {key: value for key, value in data.items() if value is not None}  # eliminamos los valores None
+                measurement.update(**data)
+                measurement.reload()
                 return measurement.to_dic(), 200
             abort(404, message=f'Measurement ID={id} was not found')
         except NotFound as e:
@@ -138,7 +163,7 @@ class MeasurementList(Resource):
         super(MeasurementList, self).__init__()
 
     def get(self):
-        import pdb;
+        import pdb
         pdb.set_trace()
         try:
             data = [measurement.to_dic() for measurement in Measurement.objects]
